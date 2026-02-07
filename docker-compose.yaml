@@ -1,0 +1,12 @@
+services:
+  schedule:
+    build: .
+    image: juncothebird/gackcon-schedule-2026:v1
+    ports:
+      - "3000:32568" # random high port for now
+    restart: unless-stopped
+    volumes:
+      - schedule-data:/usr/src/app/data
+
+volumes:
+  schedule-data:

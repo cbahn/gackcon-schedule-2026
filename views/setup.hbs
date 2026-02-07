@@ -1,0 +1,30 @@
+<header>
+  <h1>Schedule Setup</h1>
+  <p>Paste your schedule JSON and choose an admin password.</p>
+</header>
+
+{{#if error}}
+  <article class="notice error">{{error}}</article>
+{{/if}}
+
+<form method="post" action="/setup">
+  <label>
+    Timezone (IANA name)
+    <input name="timezone" value="{{timezoneDefault}}" placeholder="America/Chicago" />
+    <small>Examples: America/Chicago, America/Denver, Europe/London</small>
+  </label>
+
+  <label>
+    Admin password
+    <input type="password" name="adminPassword" minlength="8" required />
+    <small>At least 8 characters.</small>
+  </label>
+
+  <label>
+    Schedule JSON
+    <textarea name="scheduleJson" rows="18" required spellcheck="false">{{scheduleJson}}</textarea>
+    <small>For now we only check it parses as JSON.</small>
+  </label>
+
+  <button type="submit">Save &amp; Continue</button>
+</form>

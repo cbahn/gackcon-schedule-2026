@@ -1,0 +1,107 @@
+<header class="row">
+  <div>
+    <h1>Schedule</h1>
+    <p class="muted">Timezone: <code>{{timezone}}</code></p>
+  </div>
+  <div class="right">
+    <a href="/edit" role="button" class="secondary">Edit</a>
+  </div>
+</header>
+
+{{#if warnings.length}}
+  <article class="notice warn">
+    <strong>Warnings</strong>
+    <ul>
+      {{#each warnings}}
+        <li>{{this}}</li>
+      {{/each}}
+    </ul>
+  </article>
+{{/if}}
+
+<nav class="tabs" aria-label="Days">
+  <a href="#friday" data-tab="friday">Friday</a>
+  <a href="#saturday" data-tab="saturday">Saturday</a>
+  <a href="#sunday" data-tab="sunday">Sunday</a>
+</nav>
+
+<section id="friday" class="day">
+  <h2>Friday</h2>
+  {{#if byDay.friday.length}}
+    {{#each byDay.friday}}
+      <article class="event" data-start-ms="{{startMs}}" data-end-ms="{{endMs}}">
+        <header class="event-head">
+          <div class="event-title">{{title}}</div>
+          <div class="event-time">{{startLabel}} – {{endLabel}}</div>
+        </header>
+        <div class="event-meta">
+          {{#if host}}<span class="pill">Host: {{host}}</span>{{/if}}
+          {{#if floor}}<span class="pill">Floor {{floor}}</span>{{/if}}
+          {{#each tags}}<span class="pill tag">{{this}}</span>{{/each}}
+        </div>
+        {{#if description}}<p class="event-desc">{{description}}</p>{{/if}}
+      </article>
+    {{/each}}
+  {{else}}
+    <p class="muted">No Friday events.</p>
+  {{/if}}
+</section>
+
+<section id="saturday" class="day">
+  <h2>Saturday</h2>
+  {{#if byDay.saturday.length}}
+    {{#each byDay.saturday}}
+      <article class="event" data-start-ms="{{startMs}}" data-end-ms="{{endMs}}">
+        <header class="event-head">
+          <div class="event-title">{{title}}</div>
+          <div class="event-time">{{startLabel}} – {{endLabel}}</div>
+        </header>
+        <div class="event-meta">
+          {{#if host}}<span class="pill">Host: {{host}}</span>{{/if}}
+          {{#if floor}}<span class="pill">Floor {{floor}}</span>{{/if}}
+          {{#each tags}}<span class="pill tag">{{this}}</span>{{/each}}
+        </div>
+        {{#if description}}<p class="event-desc">{{description}}</p>{{/if}}
+      </article>
+    {{/each}}
+  {{else}}
+    <p class="muted">No Saturday events.</p>
+  {{/if}}
+</section>
+
+<section id="sunday" class="day">
+  <h2>Sunday</h2>
+  {{#if byDay.sunday.length}}
+    {{#each byDay.sunday}}
+      <article class="event" data-start-ms="{{startMs}}" data-end-ms="{{endMs}}">
+        <header class="event-head">
+          <div class="event-title">{{title}}</div>
+          <div class="event-time">{{startLabel}} – {{endLabel}}</div>
+        </header>
+        <div class="event-meta">
+          {{#if host}}<span class="pill">Host: {{host}}</span>{{/if}}
+          {{#if floor}}<span class="pill">Floor {{floor}}</span>{{/if}}
+          {{#each tags}}<span class="pill tag">{{this}}</span>{{/each}}
+        </div>
+        {{#if description}}<p class="event-desc">{{description}}</p>{{/if}}
+      </article>
+    {{/each}}
+  {{else}}
+    <p class="muted">No Sunday events.</p>
+  {{/if}}
+</section>
+
+{{#if byDay.other.length}}
+  <section class="day">
+    <h2>Other days</h2>
+    <p class="muted">These events didn’t land on Fri/Sat/Sun.</p>
+    {{#each byDay.other}}
+      <article class="event" data-start-ms="{{startMs}}" data-end-ms="{{endMs}}">
+        <header class="event-head">
+          <div class="event-title">{{title}}</div>
+          <div class="event-time">{{startLabel}} – {{endLabel}}</div>
+        </header>
+      </article>
+    {{/each}}
+  </section>
+{{/if}}

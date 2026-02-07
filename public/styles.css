@@ -1,0 +1,72 @@
+.row {
+  display: flex;
+  gap: 1rem;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.right {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+}
+
+.muted {
+  opacity: 0.75;
+}
+
+.tabs a[aria-current="page"] {
+  font-weight: 700;
+  text-decoration: underline;
+}
+
+.notice {
+  border-left: 6px solid var(--pico-primary);
+  padding: 1rem;
+}
+.notice.error { border-left-color: #c62828; }
+.notice.warn { border-left-color: #f9a825; }
+
+.event {
+  transition: opacity 160ms ease, filter 160ms ease;
+}
+
+.event.past {
+  opacity: 0.45;
+  filter: grayscale(1);
+}
+
+.event-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: baseline;
+}
+
+.event-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+.event-time {
+  opacity: 0.8;
+  white-space: nowrap;
+}
+
+.event-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .4rem;
+  margin-top: .4rem;
+}
+
+.pill {
+  font-size: .85rem;
+  padding: .15rem .5rem;
+  border-radius: 999px;
+  border: 1px solid rgba(127,127,127,.35);
+}
+
+.event-desc {
+  margin-top: .75rem;
+}

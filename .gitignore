@@ -8,5 +8,8 @@ jspm_packages/
 .env.*
 !.env.example
 
+# typescript compiles files
+dist/
+
 # runtime data files
 data/

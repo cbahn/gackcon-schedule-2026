@@ -1,0 +1,32 @@
+<header class="row">
+  <div>
+    <h1>Edit Connections</h1>
+    <p class="muted">Upload a text/HTML file to replace the page content.</p>
+  </div>
+  <div class="right">
+    <a href="/connections" role="button" class="secondary">Back</a>
+  </div>
+</header>
+
+{{#if error}}
+  <article class="notice error">{{error}}</article>
+{{/if}}
+
+<form method="post" action="/connections/edit" enctype="multipart/form-data">
+  <label>
+    Admin password
+    <input type="password" name="adminPassword" required />
+  </label>
+
+  <label>
+    Content file
+    <input type="file" name="connectionsFile" required />
+  </label>
+
+  <button type="submit">Upload</button>
+</form>
+
+<h2>Current content</h2>
+<section class="connections-body">
+  {{{connectionsHtml}}}
+</section>

@@ -35,10 +35,13 @@ function parseStart(starttime: string, tz: string): DateTime {
 }
 
 function weekdayToDayKey(dt: DateTime): NormalizedEvent["dayKey"] {
-  // Luxon: 1=Mon ... 5=Fri 6=Sat 7=Sun
-  if (dt.weekday === 5) return "friday";
-  if (dt.weekday === 6) return "saturday";
-  if (dt.weekday === 7) return "sunday";
+  // Time is shifted back 5 hours before day of week is applied
+  // This is so events that happen at 1am are condisered part of 
+  // the previous day
+  const shiftedWeekday = dt.minus({ hours: 5 }).weekday;
+  if (shiftedWeekday === 5) return "friday";
+  if (shiftedWeekday === 6) return "saturday";
+  if (shiftedWeekday === 7) return "sunday";
   return "other";
 }
 

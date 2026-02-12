@@ -11,6 +11,7 @@ export type AppConfig = {
 const DATA_DIR = path.resolve(process.cwd(), "data");
 const CONFIG_PATH = path.join(DATA_DIR, "config.json");
 const SCHEDULE_PATH = path.join(DATA_DIR, "schedule.json");
+const CONNECTIONS_PATH = path.join(DATA_DIR, "connections.html");
 
 export async function ensureDataDir(): Promise<void> {
   await fs.mkdir(DATA_DIR, { recursive: true });
@@ -52,6 +53,19 @@ export async function readScheduleRaw(): Promise<unknown | null> {
 export async function writeScheduleRaw(schedule: unknown): Promise<void> {
   await ensureDataDir();
   await fs.writeFile(SCHEDULE_PATH, JSON.stringify(schedule, null, 2), "utf8");
+}
+
+export async function readConnectionsRaw(): Promise<string> {
+  try {
+    return await fs.readFile(CONNECTIONS_PATH, "utf8");
+  } catch {
+    return "";
+  }
+}
+
+export async function writeConnectionsRaw(content: string): Promise<void> {
+  await ensureDataDir();
+  await fs.writeFile(CONNECTIONS_PATH, content, "utf8");
 }
 
 export function nowIso(): string {

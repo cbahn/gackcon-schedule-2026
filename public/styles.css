@@ -70,3 +70,7 @@
 .event-desc {
   margin-top: .75rem;
 }
+
+.connections-body {
+  white-space: pre-wrap;
+}

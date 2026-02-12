@@ -11,6 +11,8 @@ import {
   writeConfig,
   readScheduleRaw,
   writeScheduleRaw,
+  readConnectionsRaw,
+  writeConnectionsRaw,
   nowIso
 } from "./storage.js";
 import { normalizeSchedule } from "./schedule.js";
@@ -50,6 +52,48 @@ function parseJsonFromTextarea(text: string): { ok: true; value: unknown } | { o
   }
 }
 
+function parseMultipart(req: express.Request): { fields: Record<string, string>; files: Record<string, string> } | null {
+  const contentType = req.headers["content-type"];
+  if (!contentType || !contentType.startsWith("multipart/form-data")) return null;
+  if (!Buffer.isBuffer(req.body)) return null;
+
+  const boundaryMatch = contentType.match(/boundary=(?:"([^"]+)"|([^;]+))/i);
+  const boundary = boundaryMatch?.[1] ?? boundaryMatch?.[2];
+  if (!boundary) return null;
+
+  const delimiter = `--${boundary}`;
+  const bodyText = req.body.toString("latin1");
+  const chunks = bodyText.split(delimiter).slice(1, -1);
+  const fields: Record<string, string> = {};
+  const files: Record<string, string> = {};
+
+  for (const chunk of chunks) {
+    const part = chunk.startsWith("\r\n") ? chunk.slice(2) : chunk;
+    const splitAt = part.indexOf("\r\n\r\n");
+    if (splitAt === -1) continue;
+
+    const headerText = part.slice(0, splitAt);
+    let dataText = part.slice(splitAt + 4);
+    if (dataText.endsWith("\r\n")) dataText = dataText.slice(0, -2);
+
+    const dispositionLine = headerText
+      .split("\r\n")
+      .find(line => line.toLowerCase().startsWith("content-disposition:"));
+    if (!dispositionLine) continue;
+
+    const nameMatch = dispositionLine.match(/name="([^"]+)"/i);
+    if (!nameMatch) continue;
+    const fieldName = nameMatch[1];
+
+    const isFile = /filename="/i.test(dispositionLine);
+    const value = Buffer.from(dataText, "latin1").toString("utf8");
+    if (isFile) files[fieldName] = value;
+    else fields[fieldName] = value;
+  }
+
+  return { fields, files };
+}
+
 app.get("/", async (_req, res) => {
   if (!(await isConfigured())) return res.redirect("/setup");
 
@@ -70,6 +114,15 @@ app.get("/", async (_req, res) => {
     timezone: cfg.timezone,
     byDay,
     warnings
+  });
+});
+
+app.get("/connections", async (_req, res) => {
+  if (!(await isConfigured())) return res.redirect("/setup");
+
+  const content = await readConnectionsRaw();
+  res.render("connections", {
+    connectionsHtml: content
   });
 });
 
@@ -141,6 +194,15 @@ app.get("/edit", async (_req, res) => {
   });
 });
 
+app.get("/connections/edit", async (_req, res) => {
+  if (!(await isConfigured())) return res.redirect("/setup");
+
+  const content = await readConnectionsRaw();
+  res.render("connections-edit", {
+    connectionsHtml: content
+  });
+});
+
 app.post("/edit", async (req, res) => {
   if (!(await isConfigured())) return res.redirect("/setup");
 
@@ -176,6 +238,47 @@ app.post("/edit", async (req, res) => {
   await writeConfig({ ...cfg, updatedAtIso: nowIso() });
 
   return res.redirect("/");
+});
+
+app.post("/connections/edit", express.raw({ type: "multipart/form-data", limit: "1mb" }), async (req, res) => {
+  if (!(await isConfigured())) return res.redirect("/setup");
+
+  const cfg = await readConfig();
+  if (!cfg) return res.redirect("/setup");
+
+  const parsed = parseMultipart(req);
+  if (!parsed) {
+    const content = await readConnectionsRaw();
+    return res.status(400).render("connections-edit", {
+      connectionsHtml: content,
+      error: "Invalid upload payload."
+    });
+  }
+
+  const password = parsed.fields.adminPassword ?? "";
+  const uploadContent = parsed.files.connectionsFile;
+  if (uploadContent === undefined) {
+    const content = await readConnectionsRaw();
+    return res.status(400).render("connections-edit", {
+      connectionsHtml: content,
+      error: "Please upload a file."
+    });
+  }
+
+  const ok = await bcrypt.compare(password, cfg.passwordHash);
+
+  if (!ok) {
+    await new Promise(r => setTimeout(r, 350));
+    return res.status(403).render("connections-edit", {
+      connectionsHtml: uploadContent,
+      error: "Wrong admin password."
+    });
+  }
+
+  await writeConnectionsRaw(uploadContent);
+  await writeConfig({ ...cfg, updatedAtIso: nowIso() });
+
+  return res.redirect("/connections");
 });
 
 app.get("/healthz", (_req, res) => {
